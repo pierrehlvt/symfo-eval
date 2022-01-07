@@ -33,7 +33,7 @@ class Media
     private $type;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
