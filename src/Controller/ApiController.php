@@ -27,8 +27,10 @@ class ApiController extends AbstractController
      */
     public function index(): Response
     {
+        $medias = $this->manager->getRepository(Media::class)->getFiveLast();
+        
         return $this->render('api/index.html.twig', [
-            'controller_name' => 'ApiController',
+            'medias' => $medias,
         ]);
     }
 
