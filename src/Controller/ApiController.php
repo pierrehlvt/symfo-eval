@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Media;
+use App\Service\SerializerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,10 +14,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiController extends AbstractController
 {
     private EntityManagerInterface $manager;
+    private SerializerService $serializerService;
     
-    public function __construct(EntityManagerInterface $manager)
+    public function __construct(EntityManagerInterface $manager, SerializerService $serializerService)
     {
         $this->manager = $manager;   
+        $this->serializerService = $serializerService;
     }
 
     /**
@@ -30,9 +33,9 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @Route("/create", name="create")
+     * @Route("/api/create", name="api_create")
      */
-    public function create(Request $request)
+    public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         
@@ -50,6 +53,25 @@ class ApiController extends AbstractController
             return new JsonResponse("Votre film / série a bien été ajouté", Response::HTTP_CREATED);
         } else {
             return new JsonResponse("Une erreur est survenue, veuillez réessayer", Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * @Route("/api/get-all", name="api_get_all")
+     */
+    public function getAll(): JsonResponse
+    {
+        return JsonResponse::fromJsonString($this->serializerService->SimpleSerializer($this->manager->getRepository(Media::class)->findAll(), 'json'), Response::HTTP_OK);
+    }
+
+    /**
+     * @Route("/api/get/{id_item}", name="get_one")
+     */
+    public function getOneById($id_item) {
+        if(!empty($media)) {
+            return JsonResponse::fromJsonString($this->serializerService->SimpleSerializer($this->manager->getRepository(Media::class)->findOneBy(['id' => $id_item]), 'json'), Response::HTTP_OK);
+        } else {
+            return new JsonResponse("Ce Film ou cette série n'existe pas", Response::HTTP_NOT_FOUND);
         }
     }
 }
