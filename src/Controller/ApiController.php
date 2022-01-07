@@ -41,7 +41,7 @@ class ApiController extends AbstractController
         
         $media = new Media();
         
-        if(isset($data)) {
+        if(isset($data) && !empty($data['nom']) && !empty($data['synopsis']) && !empty($data['type'])) {
             $media->setNom($data['nom']);
             $media->setSynopsis($data['synopsis']);
             $media->setType($data['type']);
@@ -67,11 +67,12 @@ class ApiController extends AbstractController
     /**
      * @Route("/api/get/{id_item}", name="get_one")
      */
-    public function getOneById($id_item) {
-        if(!empty($media)) {
+    public function getOneById($id_item): JsonResponse
+    {
+        if(!empty($id_item)) {
             return JsonResponse::fromJsonString($this->serializerService->SimpleSerializer($this->manager->getRepository(Media::class)->findOneBy(['id' => $id_item]), 'json'), Response::HTTP_OK);
         } else {
-            return new JsonResponse("Ce Film ou cette série n'existe pas", Response::HTTP_NOT_FOUND);
+            return new JsonResponse("Erreur lors du chargement de la page du film", Response::HTTP_BAD_REQUEST);
         }
     }
 }
